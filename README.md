@@ -4,6 +4,8 @@
 
 A browser extension that sits quietly inside claude.ai and shows you exactly what's happening with your tokens, cache hits, and usage limits — in real time.
 
+![claukit in action](assets/demo.png)
+
 ---
 
 ## what it does
