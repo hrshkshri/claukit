@@ -1,0 +1,15 @@
+{
+  "name": "claukit",
+  "version": "0.5.0",
+  "description": "your claude companion. tokens, cache, usage — all in one spot.",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "package": "node build.mjs && zip claukit.zip manifest.json dist/content.js dist/bridge.js src/styles.css src/vendor/o200k_base.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.3"
+  }
+}
