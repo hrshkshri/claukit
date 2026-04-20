@@ -23,7 +23,7 @@ A browser extension that sits quietly inside claude.ai and shows you exactly wha
 ### Firefox
 
 **Option A — Firefox Add-ons (recommended)**
-> *(pending AMO review — link will be live soon)*
+[Install from Mozilla Add-ons](https://addons.mozilla.org/addon/claukit/) — version 0.5.0 is live
 
 **Option B — Manual**
 1. Download `claukit.zip` from [Releases](https://github.com/hrshkshri/claukit/releases)
@@ -31,7 +31,7 @@ A browser extension that sits quietly inside claude.ai and shows you exactly wha
 3. Click **This Firefox** → **Load Temporary Add-on**
 4. Select the downloaded zip
 
-> Note: Temporary add-ons are removed when Firefox restarts. Wait for the AMO listing for a permanent install.
+> Note: Temporary add-ons are removed when Firefox restarts. For a permanent install, use Option A above.
 
 ---
 
