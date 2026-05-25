@@ -32,6 +32,8 @@ import json, os, time, subprocess, sys
 
 cache_path = os.path.expanduser("~/.claukit/usage-cache.json")
 try:
+    if not os.path.exists(cache_path):
+        subprocess.run(["claukit", "show"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     with open(cache_path) as f:
         data = json.load(f)
     cached_at = data.get("cachedAt", 0)
