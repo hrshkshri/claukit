@@ -43,10 +43,14 @@ try:
     fh = usage.get("five_hour", {})
     sd = usage.get("seven_day", {})
     def bar(util, resets_at, width=8):
+        from datetime import datetime
         filled = round(util * width)
         total_ms = 5 * 3600 * 1000
         now_ms = time.time() * 1000
-        resets_ms = resets_at * 1000 if resets_at else now_ms + total_ms
+        if resets_at:
+            resets_ms = datetime.fromisoformat(resets_at).timestamp() * 1000
+        else:
+            resets_ms = now_ms + total_ms
         elapsed_ms = total_ms - (resets_ms - now_ms)
         marker = max(0, min(width - 1, round((elapsed_ms / total_ms) * width)))
         cells = []
@@ -62,6 +66,8 @@ try:
         return "".join(cells)
     fh_util = fh.get("utilization", 0)
     sd_util = sd.get("utilization", 0)
+    fh_util = fh_util / 100 if fh_util > 1 else fh_util
+    sd_util = sd_util / 100 if sd_util > 1 else sd_util
     fh_bar = bar(fh_util, fh.get("resets_at"))
     sd_bar = bar(sd_util, sd.get("resets_at"))
     def color(u):
