@@ -5,6 +5,7 @@ const { extractCookies } = require('./cookies');
 const { fetchOrgId } = require('./usage');
 const { writeConfig } = require('./config');
 const { installHook } = require('./hook');
+const { installStatusline } = require('./statusline');
 
 function prompt(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -67,6 +68,15 @@ async function setup() {
       ? 'claude code hook installed (~/.claude/settings.json)\n'
       : 'claude code hook already present\n'
   );
+
+  const statusline = installStatusline();
+  if (statusline === true) {
+    process.stdout.write('statusline installed (~/.claude/statusline-command.sh)\n');
+  } else if (statusline === null) {
+    process.stdout.write('note: custom statusline detected — add claukit bars manually\n');
+  } else {
+    process.stdout.write('statusline already present\n');
+  }
 
   console.log('\ndone. start a new claude session to see your usage.');
 }
