@@ -2,9 +2,7 @@
 
 **your claude companion.** tokens, cache, usage — all in one spot.
 
-A browser extension that sits quietly inside claude.ai and shows you exactly what's happening with your tokens, cache hits, and usage limits — in real time.
-
-![claukit in action](assets/demo.png)
+A browser extension + CLI that shows you exactly what's happening with your Claude usage — in real time.
 
 ---
 
@@ -13,12 +11,13 @@ A browser extension that sits quietly inside claude.ai and shows you exactly wha
 - **token counter** — see input + output tokens for every message as you chat
 - **cache tracking** — know when claude is reading from cache vs. processing fresh
 - **usage bars** — visual progress showing how close you are to your 5hr and 7-day limits
-- **reset countdown** — shows exactly when your limit resets (hours + seconds when close)
+- **reset countdown** — shows exactly when your limit resets
+- **CLI** — usage bars in your Claude Code status line, auto-refreshing every minute
 - works in **light and dark mode** — follows claude.ai's theme automatically
 
 ---
 
-## install
+## browser extension
 
 ### Firefox
 
@@ -30,10 +29,6 @@ A browser extension that sits quietly inside claude.ai and shows you exactly wha
 2. Open Firefox → go to `about:debugging`
 3. Click **This Firefox** → **Load Temporary Add-on**
 4. Select the downloaded zip
-
-> Note: Temporary add-ons are removed when Firefox restarts. For a permanent install, use Option A above.
-
----
 
 ### Chrome
 
@@ -47,15 +42,34 @@ A browser extension that sits quietly inside claude.ai and shows you exactly wha
 4. Enable **Developer mode** (toggle, top right)
 5. Click **Load unpacked** → select the unzipped folder
 
-> Note: Chrome may show a warning about developer mode extensions on restart — just click **Keep** to dismiss it.
+---
+
+## CLI (Claude Code)
+
+Shows your usage directly in the Claude Code status line.
+
+```bash
+npm install -g claukit
+claukit setup
+```
+
+`setup` auto-detects your claude.ai session from Chrome, Firefox, or Safari and wires everything up. Your status bar will show:
+
+```
+~/project/ Sonnet 4.6 | ctx: 87% left | session:████|░░░░ 36%  weekly:██░░|░░░░ 14%
+```
+
+The `|` marker shows where you *should* be in your usage window — stay behind it and your tokens won't run out early.
+
+**Requirements:** macOS, Node.js 18+, Claude Code
+
+**Manual refresh:** type `! claukit show` in the Claude Code chat input
 
 ---
 
-## how to use it
+## how to use the extension
 
-Once installed, open [claude.ai](https://claude.ai) and start chatting. claukit appears automatically inside the interface — no setup, no login, no config.
-
-### the panel
+Once installed, open [claude.ai](https://claude.ai) and start chatting. claukit appears automatically — no setup, no login, no config.
 
 | element | what it means |
 |---|---|
@@ -65,12 +79,8 @@ Once installed, open [claude.ai](https://claude.ai) and start chatting. claukit 
 | weekly bar | % of your 7-day usage window consumed |
 | reset countdown | time remaining until your usage window resets |
 
-### tips
-
 - **Click the panel** to manually refresh usage data
-- **`[i]` buttons** next to each row give a plain-English explanation of that metric
 - Bars turn **orange** as you approach your limit
-- When the reset is under 1 minute away, it switches to **seconds**
 - No data leaves your browser — everything is read locally from claude.ai's own API responses
 
 ---
@@ -81,16 +91,8 @@ Once installed, open [claude.ai](https://claude.ai) and start chatting. claukit 
 git clone https://github.com/hrshkshri/claukit.git
 cd claukit
 npm install
-npm run build        # production build → dist/
-npm run dev          # watch mode with sourcemaps
-npm run package      # build + zip for distribution
+npm run build
 ```
-
-Then load via:
-- **Firefox:** `about:debugging → Load Temporary Add-on → manifest.json`
-- **Chrome:** `chrome://extensions → Load unpacked → select project folder`
-
-**Requirements:** Node.js 18+
 
 ---
 

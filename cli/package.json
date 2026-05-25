@@ -1,0 +1,32 @@
+{
+  "name": "claukit",
+  "version": "0.5.0",
+  "description": "your claude companion — session + weekly usage bars in the Claude Code status line",
+  "bin": {
+    "claukit": "index.js"
+  },
+  "files": [
+    "index.js",
+    "src/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "darwin"
+  ],
+  "keywords": [
+    "claude",
+    "anthropic",
+    "claude-code",
+    "usage",
+    "cli",
+    "ai"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hrshkshri/claukit.git"
+  },
+  "homepage": "https://github.com/hrshkshri/claukit"
+}
