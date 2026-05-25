@@ -42,10 +42,9 @@ try:
     usage = data.get("usage", {})
     fh = usage.get("five_hour", {})
     sd = usage.get("seven_day", {})
-    def bar(util, resets_at, width=8):
+    def bar(util, resets_at, total_ms, width=8):
         from datetime import datetime
         filled = round(util * width)
-        total_ms = 5 * 3600 * 1000
         now_ms = time.time() * 1000
         if resets_at:
             resets_ms = datetime.fromisoformat(resets_at).timestamp() * 1000
@@ -68,12 +67,11 @@ try:
     sd_util = sd.get("utilization", 0)
     fh_util = fh_util / 100 if fh_util > 1 else fh_util
     sd_util = sd_util / 100 if sd_util > 1 else sd_util
-    fh_bar = bar(fh_util, fh.get("resets_at"))
-    sd_bar = bar(sd_util, sd.get("resets_at"))
+    fh_bar = bar(fh_util, fh.get("resets_at"), 5 * 3600 * 1000)
+    sd_bar = bar(sd_util, sd.get("resets_at"), 7 * 24 * 3600 * 1000)
     def color(u):
         if u > 0.8: return "\\033[31m"
-        if u > 0.6: return "\\033[33m"
-        return "\\033[90m"
+        return "\\033[38;5;208m"
     reset = "\\033[0m"
     cf = color(fh_util)
     cs = color(sd_util)
