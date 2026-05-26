@@ -8,60 +8,68 @@ const STATUSLINE_PATH = path.join(os.homedir(), '.claude', 'statusline-command.s
 const SCRIPT = `#!/usr/bin/env bash
 input=$(cat)
 
-cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
-model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
-remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
+python3 - "$HOME" <<'PYEOF'
+import json, os, sys, time, subprocess
+from datetime import datetime
 
-home="$HOME"
-display_dir="\${cwd/#$home/\\~}"
+raw = sys.stdin.read()
+home = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~")
 
-git_branch=""
-if [ -n "$cwd" ] && git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
-  branch=$(git -C "$cwd" -c core.hooksPath=/dev/null symbolic-ref --short HEAD 2>/dev/null)
-  [ -n "$branch" ] && git_branch=" [$branch]"
-fi
+try:
+    d = json.loads(raw)
+except Exception:
+    d = {}
 
-context_part=""
-if [ -n "$remaining" ]; then
-  remaining_int=\${remaining%.*}
-  context_part=" | ctx: \${remaining_int}% left"
-fi
+cwd = d.get("workspace", {}).get("current_dir") or d.get("cwd") or ""
+model = (d.get("model") or {}).get("display_name") or "Claude"
+remaining = (d.get("context_window") or {}).get("remaining_percentage")
 
-claukit_part=$(python3 - <<'PYEOF'
-import json, os, time, subprocess, sys
+display_dir = cwd.replace(home, "~", 1) if cwd.startswith(home) else cwd
+
+git_branch = ""
+if cwd:
+    try:
+        import subprocess as sp
+        b = sp.check_output(
+            ["git", "-C", cwd, "-c", "core.hooksPath=/dev/null", "symbolic-ref", "--short", "HEAD"],
+            stderr=sp.DEVNULL, text=True
+        ).strip()
+        if b:
+            git_branch = f" [{b}]"
+    except Exception:
+        pass
+
+context_part = ""
+if remaining is not None:
+    context_part = f" | ctx: {int(remaining)}% left"
 
 cache_path = os.path.expanduser("~/.claukit/usage-cache.json")
+claukit_part = ""
 try:
     if not os.path.exists(cache_path):
-        subprocess.run(["claukit", "show"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        claukit_bin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "index.js")
+        subprocess.run(["node", claukit_bin, "show"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     with open(cache_path) as f:
         data = json.load(f)
     cached_at = data.get("cachedAt", 0)
     if time.time() * 1000 - cached_at > 60000:
-        subprocess.Popen(["claukit", "show"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        claukit_bin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "index.js")
+        subprocess.Popen(["node", claukit_bin, "show"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     usage = data.get("usage", {})
     fh = usage.get("five_hour", {})
     sd = usage.get("seven_day", {})
     def bar(util, resets_at, total_ms, width=8):
-        from datetime import datetime
         filled = round(util * width)
         now_ms = time.time() * 1000
-        if resets_at:
-            resets_ms = datetime.fromisoformat(resets_at).timestamp() * 1000
-        else:
-            resets_ms = now_ms + total_ms
+        resets_ms = datetime.fromisoformat(resets_at).timestamp() * 1000 if resets_at else now_ms + total_ms
         elapsed_ms = total_ms - (resets_ms - now_ms)
         marker = max(0, min(width - 1, round((elapsed_ms / total_ms) * width)))
         cells = []
         for i in range(width):
-            if i == marker:
-                cells.append("|")
-            elif i < filled:
-                cells.append("\\u2588")
-            else:
-                cells.append("\\u2591")
-        if marker == width - 1:
-            cells.append("|")
+            if i == marker: cells.append("|")
+            elif i < filled: cells.append("\\u2588")
+            else: cells.append("\\u2591")
+        if marker == width - 1: cells.append("|")
         return "".join(cells)
     fh_util = fh.get("utilization", 0)
     sd_util = sd.get("utilization", 0)
@@ -69,22 +77,16 @@ try:
     sd_util = sd_util / 100 if sd_util > 1 else sd_util
     fh_bar = bar(fh_util, fh.get("resets_at"), 5 * 3600 * 1000)
     sd_bar = bar(sd_util, sd.get("resets_at"), 7 * 24 * 3600 * 1000)
-    def color(u):
-        if u > 0.8: return "\\033[31m"
-        return "\\033[38;5;208m"
+    def color(u): return "\\033[31m" if u > 0.8 else "\\033[38;5;208m"
     reset = "\\033[0m"
-    cf = color(fh_util)
-    cs = color(sd_util)
     pf = round(fh_util * 100)
     ps = round(sd_util * 100)
-    print(f"  {cf}session:{fh_bar} {pf}%{reset}  {cs}weekly:{sd_bar} {ps}%{reset}", end="")
+    claukit_part = f"  {color(fh_util)}session:{fh_bar} {pf}%{reset}  {color(sd_util)}weekly:{sd_bar} {ps}%{reset}"
 except Exception:
     pass
-PYEOF
-)
 
-printf "\\033[35m%s/\\033[0m\\033[32m%s\\033[0m\\033[90m %s%s\\033[0m%s" \\
-  "$display_dir" "$git_branch" "$model" "$context_part" "$claukit_part"
+print(f"\\033[35m{display_dir}/\\033[0m\\033[32m{git_branch}\\033[0m\\033[90m {model}{context_part}\\033[0m{claukit_part}", end="")
+PYEOF
 `;
 
 const SETTINGS_PATH = path.join(os.homedir(), '.claude', 'settings.json');
