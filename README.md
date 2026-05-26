@@ -22,7 +22,7 @@ A browser extension + CLI that shows you exactly what's happening with your Clau
 ### Firefox
 
 **Option A — Firefox Add-ons (recommended)**
-[Install from Mozilla Add-ons](https://addons.mozilla.org/addon/claukit/) — version 0.5.0 is live
+[Install from Mozilla Add-ons](https://addons.mozilla.org/addon/claukit/)
 
 **Option B — Manual**
 1. Download `claukit.zip` from [Releases](https://github.com/hrshkshri/claukit/releases)
@@ -61,7 +61,7 @@ claukit setup
 
 The `|` marker shows where you *should* be in your usage window — stay behind it and your tokens won't run out early.
 
-**Requirements:** macOS, Node.js 18+, Claude Code
+**Requirements:** macOS / Linux, Node.js 18+, Claude Code
 
 **Manual refresh:** type `! claukit show` in the Claude Code chat input
 
