@@ -26,11 +26,11 @@ async function resolveSession() {
   const knownOrgId = cookies?.lastActiveOrg ?? null;
   process.stdout.write(knownOrgId ? ' found org id, need session key\n\n' : ' not found\n\n');
 
-  console.log('your sessionKey cookie lives in browser memory (not persisted to disk).');
-  console.log('grab it in 30 seconds:\n');
+  console.log('grab these two cookies from your browser:\n');
   console.log('  1. open claude.ai in your browser');
-  console.log('  2. devtools: cmd+option+i  →  Application  →  Cookies  →  https://claude.ai');
-  console.log('  3. find "sessionKey" and copy its value\n');
+  console.log('  2. devtools: cmd+option+i (mac) or f12 (linux)');
+  console.log('     → Application → Cookies → https://claude.ai');
+  console.log('  3. copy the values for "sessionKey" and "lastActiveOrg"\n');
 
   const sessionKey = await prompt('paste sessionKey: ');
   if (!sessionKey) {
@@ -38,7 +38,16 @@ async function resolveSession() {
     process.exit(1);
   }
 
-  return { sessionKey, orgId: knownOrgId, browser: 'manual' };
+  let orgId = knownOrgId;
+  if (!orgId) {
+    orgId = await prompt('paste lastActiveOrg: ');
+    if (!orgId) {
+      console.error('no value entered — run setup again when ready');
+      process.exit(1);
+    }
+  }
+
+  return { sessionKey, orgId, browser: 'manual' };
 }
 
 async function setup() {
@@ -51,19 +60,11 @@ async function setup() {
     process.stdout.write('fetching org id...');
     orgId = await fetchOrgId(sessionKey);
     if (!orgId) {
-      process.stdout.write(' failed\n\n');
-      console.log('could not fetch org id automatically. find it manually:');
-      console.log('  1. open claude.ai in your browser');
-      console.log('  2. devtools → Network tab → filter by "organizations"');
-      console.log('  3. look for a request like /api/organizations/<uuid> and copy the uuid\n');
-      orgId = await prompt('paste org id (or press enter to abort): ');
-      if (!orgId) {
-        console.error('aborted — run setup again when ready');
-        process.exit(1);
-      }
-    } else {
-      process.stdout.write(' ok\n');
+      process.stdout.write(' failed\n');
+      console.error('could not determine org id — run setup again and paste both cookies manually');
+      process.exit(1);
     }
+    process.stdout.write(' ok\n');
   }
 
   writeConfig({ sessionKey, orgId, browser, setupAt: new Date().toISOString() });
