@@ -52,10 +52,18 @@ async function setup() {
     orgId = await fetchOrgId(sessionKey);
     if (!orgId) {
       process.stdout.write(' failed\n\n');
-      console.log('auth failed. double-check the sessionKey value and try again.');
-      process.exit(1);
+      console.log('could not fetch org id automatically. find it manually:');
+      console.log('  1. open claude.ai and start any conversation');
+      console.log('  2. look at the URL: claude.ai/chat/<org-id>/...');
+      console.log('  3. or in devtools → Network → any /api/organizations/<uuid> request\n');
+      orgId = await prompt('paste org id (or press enter to abort): ');
+      if (!orgId) {
+        console.error('aborted — run setup again when ready');
+        process.exit(1);
+      }
+    } else {
+      process.stdout.write(' ok\n');
     }
-    process.stdout.write(' ok\n');
   }
 
   writeConfig({ sessionKey, orgId, browser, setupAt: new Date().toISOString() });
