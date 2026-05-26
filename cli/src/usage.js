@@ -16,13 +16,13 @@ async function fetchOrgId(sessionKey) {
     const data = await fetchWithSession('https://claude.ai/api/bootstrap', sessionKey)
       ?? await fetchWithSession('https://claude.ai/api/auth/session', sessionKey);
     if (!data) return null;
-    // Try common shapes of the response
-    return (
-      data?.account?.memberships?.[0]?.organization?.uuid ??
-      data?.memberships?.[0]?.organization?.uuid ??
-      data?.organizations?.[0]?.uuid ??
+    const org = (
+      data?.account?.memberships?.[0]?.organization ??
+      data?.memberships?.[0]?.organization ??
+      data?.organizations?.[0] ??
       null
     );
+    return org?.uuid ?? org?.id ?? null;
   } catch {
     return null;
   }

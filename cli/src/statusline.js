@@ -87,16 +87,33 @@ printf "\\033[35m%s/\\033[0m\\033[32m%s\\033[0m\\033[90m %s%s\\033[0m%s" \\
   "$display_dir" "$git_branch" "$model" "$context_part" "$claukit_part"
 `;
 
+const SETTINGS_PATH = path.join(os.homedir(), '.claude', 'settings.json');
+
+function writeStatusLineToSettings() {
+  let settings = {};
+  try {
+    const raw = readFileSync(SETTINGS_PATH, 'utf8');
+    settings = JSON.parse(raw);
+  } catch {}
+  if (settings.statusLine?.command?.includes('statusline-command.sh')) return;
+  settings.statusLine = { type: 'command', command: `bash ${STATUSLINE_PATH}` };
+  writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+}
+
 function installStatusline() {
   if (existsSync(STATUSLINE_PATH)) {
     const existing = readFileSync(STATUSLINE_PATH, 'utf8');
-    if (existing.includes('claukit')) return false;
+    if (existing.includes('claukit')) {
+      writeStatusLineToSettings();
+      return false;
+    }
     // Has custom statusline without claukit — don't overwrite
     return null;
   }
 
   writeFileSync(STATUSLINE_PATH, SCRIPT);
   chmodSync(STATUSLINE_PATH, 0o755);
+  writeStatusLineToSettings();
   return true;
 }
 
