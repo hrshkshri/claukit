@@ -53,9 +53,9 @@ async function setup() {
     if (!orgId) {
       process.stdout.write(' failed\n\n');
       console.log('could not fetch org id automatically. find it manually:');
-      console.log('  1. open claude.ai and start any conversation');
-      console.log('  2. look at the URL: claude.ai/chat/<org-id>/...');
-      console.log('  3. or in devtools → Network → any /api/organizations/<uuid> request\n');
+      console.log('  1. open claude.ai in your browser');
+      console.log('  2. devtools → Network tab → filter by "organizations"');
+      console.log('  3. look for a request like /api/organizations/<uuid> and copy the uuid\n');
       orgId = await prompt('paste org id (or press enter to abort): ');
       if (!orgId) {
         console.error('aborted — run setup again when ready');
