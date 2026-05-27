@@ -78,7 +78,7 @@ async function setup() {
       : 'claude code hook already present\n'
   );
 
-  const statusline = installStatusline();
+  const statusline = installStatusline(cliPath);
   if (statusline === true) {
     process.stdout.write('statusline installed (~/.claude/statusline-command.sh)\n');
   } else if (statusline === null) {
