@@ -1,6 +1,6 @@
 {
   "name": "claukit",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "your claude companion — session + weekly usage bars in the Claude Code status line",
   "bin": {
     "claukit": "index.js"

@@ -16,7 +16,8 @@ function installHook(cliPath) {
 
   const already = settings.hooks.SessionStart.some(entry =>
     Array.isArray(entry.hooks) &&
-    entry.hooks.some(h => typeof h.command === 'string' && h.command.includes('claukit show'))
+    entry.hooks.some(h => typeof h.command === 'string' &&
+      h.command.includes('claukit') && h.command.includes('show'))
   );
   if (already) return false;
 

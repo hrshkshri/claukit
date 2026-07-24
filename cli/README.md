@@ -26,11 +26,29 @@ claukit setup
 ## commands
 
 ```bash
-claukit setup   # one-time setup — detects session, configures status line
-claukit show    # print current usage bars
+claukit setup       # one-time setup — detects session, configures status line
+claukit show        # print current usage bars
+claukit uninstall   # remove the status line, hook, and cached data
 ```
 
 **Manual refresh in Claude Code:** type `! claukit show` in the chat input.
+
+---
+
+## uninstall
+
+npm can't run cleanup scripts on removal, so remove claukit's Claude Code
+integration first, then the package:
+
+```bash
+claukit uninstall
+npm uninstall -g claukit
+```
+
+`uninstall` removes the `SessionStart` hook and status line from
+`~/.claude/settings.json`, deletes `~/.claude/statusline-command.sh`, and clears
+`~/.claukit`. If you forget and just `npm uninstall`, the status line detects that
+claukit is gone on its next render and removes itself automatically.
 
 ---
 
