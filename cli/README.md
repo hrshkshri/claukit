@@ -17,7 +17,17 @@ npm install -g claukit
 claukit setup
 ```
 
-`setup` auto-detects your claude.ai session from Chrome, Firefox, or Safari and wires everything up. Your status bar starts updating automatically every minute.
+`setup` tries to auto-detect your claude.ai session from Chrome, Firefox, or
+Safari. If it can't read the cookies off disk — common on macOS, or when the
+session cookie is in-memory only — it walks you through grabbing them manually:
+
+1. open [claude.ai](https://claude.ai) in your browser
+2. open devtools — `cmd+option+i` (mac) or `f12` (linux)
+3. **Application → Cookies → https://claude.ai**
+4. copy the values for `sessionKey` and `lastActiveOrg` and paste them when prompted
+
+Once configured, your status bar shows cached usage bars and refreshes them in the
+background at most once a minute as you work.
 
 **Requirements:** macOS / Linux, Node.js 18+, [Claude Code](https://claude.ai/code)
 
