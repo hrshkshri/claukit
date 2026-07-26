@@ -6,14 +6,30 @@ const path = require('path');
 const STATUSLINE_PATH = path.join(os.homedir(), '.claude', 'statusline-command.sh');
 const SETTINGS_PATH = path.join(os.homedir(), '.claude', 'settings.json');
 
+const SCRIPT_VERSION = 'claukit statusline v2';
+
 function makeScript(indexJsPath) {
   return `#!/usr/bin/env bash
-# claukit statusline - statusline-cache.txt
+# ${SCRIPT_VERSION} - statusline-cache.txt
 input=$(cat)
 
 CACHE="$HOME/.claukit/statusline-cache.txt"
+SELF="$HOME/.claude/statusline-command.sh"
 CLAUKIT_BIN="${indexJsPath}"
 NOW=$(date +%s)
+
+# Resolve the binary. If the recorded path is gone (e.g. an nvm version switch),
+# fall back to whatever's on PATH before assuming claukit was uninstalled.
+if [[ ! -f "$CLAUKIT_BIN" ]]; then
+    if command -v claukit >/dev/null 2>&1; then
+        CLAUKIT_BIN="$(command -v claukit)"
+    else
+        # claukit is truly gone — clear the bar and remove this script so it
+        # stops rendering stale usage after \`npm uninstall -g claukit\`.
+        rm -f "$CACHE" "$SELF"
+        exit 0
+    fi
+fi
 
 if [[ ! -f "$CACHE" ]]; then
     node "$CLAUKIT_BIN" show >/dev/null 2>&1
@@ -45,14 +61,15 @@ function installStatusline(cliPath) {
 
   if (existsSync(STATUSLINE_PATH)) {
     const existing = readFileSync(STATUSLINE_PATH, 'utf8');
-    if (existing.includes('statusline-cache.txt')) {
+    if (existing.includes(SCRIPT_VERSION)) {
+      // Current version already installed — just make sure settings point at it.
       writeStatusLineToSettings();
       return false;
     }
     if (!existing.includes('claukit')) {
       return null;
     }
-    // Old claukit script — upgrade to cache-based version
+    // Older claukit script — fall through to upgrade to the current version.
   }
 
   writeFileSync(STATUSLINE_PATH, newScript);

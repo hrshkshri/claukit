@@ -12,7 +12,7 @@ A browser extension + CLI that shows you exactly what's happening with your Clau
 - **cache tracking** — know when claude is reading from cache vs. processing fresh
 - **usage bars** — visual progress showing how close you are to your 5hr and 7-day limits
 - **reset countdown** — shows exactly when your limit resets
-- **CLI** — usage bars in your Claude Code status line, auto-refreshing every minute
+- **CLI** — usage bars in your Claude Code status line, refreshed in the background as you work
 - works in **light and dark mode** — follows claude.ai's theme automatically
 
 ---
@@ -53,7 +53,17 @@ npm install -g claukit
 claukit setup
 ```
 
-`setup` auto-detects your claude.ai session from Chrome, Firefox, or Safari and wires everything up. Your status bar will show:
+`setup` tries to auto-detect your claude.ai session from Chrome, Firefox, or
+Safari. If it can't read the cookies off disk — common on macOS, or when the
+session cookie is in-memory only — it walks you through grabbing them manually:
+
+1. open [claude.ai](https://claude.ai) in your browser
+2. open devtools — `cmd+option+i` (mac) or `f12` (linux)
+3. **Application → Cookies → https://claude.ai**
+4. copy the values for `sessionKey` and `lastActiveOrg` and paste them when prompted
+
+Once configured, your status bar shows cached usage bars, refreshed in the
+background at most once a minute as you work:
 
 ```
 ~/project/ Sonnet 4.6 | ctx: 87% left | session:████|░░░░ 36%  weekly:██░░|░░░░ 14%

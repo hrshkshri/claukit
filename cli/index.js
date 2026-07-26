@@ -12,7 +12,15 @@ if (cmd === 'setup') {
 } else if (cmd === 'show' || cmd == null) {
   const { show } = require('./src/show');
   show().catch(() => {}); // silent on error — this runs on every session start
+} else if (cmd === 'uninstall') {
+  const { uninstall } = require('./src/uninstall');
+  try {
+    uninstall();
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
 } else {
-  console.log('usage: claukit setup | claukit show');
+  console.log('usage: claukit setup | claukit show | claukit uninstall');
   process.exit(1);
 }
